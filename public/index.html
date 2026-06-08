@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Temporal Mail</title>
+</head>
+<body style="background:#121212; color:white; font-family:sans-serif; padding:20px;">
+    <h1>Temporal Mail</h1>
+    <p>Email: <span id="emailAddr" style="color: #00ff00;">Klik tombol dibawah</span></p>
+    <button onclick="generate()">Generate Email</button>
+    <hr>
+    <h3>Inbox</h3>
+    <div id="inboxList"></div>
+
+    <script>
+        let currentId = '';
+        async function generate() {
+            const res = await fetch('/api/generate', { method: 'POST' });
+            const data = await res.json();
+            currentId = data.id;
+            document.getElementById('emailAddr').innerText = data.email;
+        }
+        async function refresh() {
+            if(!currentId) return;
+            const res = await fetch(`/api/inbox/${currentId}`);
+            const data = await res.json();
+            document.getElementById('inboxList').innerHTML = data.length > 0 ? 
+                data.map(m => `<p>${m.from}: ${m.subject}</p>`).join('') : '<p>Kosong...</p>';
+        }
+        setInterval(refresh, 5000);
+    </script>
+</body>
+</html>
